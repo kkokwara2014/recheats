@@ -45,6 +45,14 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>tel</string>
+		<string>mailto</string>
+		<string>https</string>
+		<string>http</string>
+		<string>whatsapp</string>
+	</array>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>RechEats needs photo access so you can set a profile picture.</string>
 	<key>UIBackgroundModes</key>

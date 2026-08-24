@@ -173,9 +173,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   onTap: () => context.push(AppRoutes.profileNotifications),
                 ),
                 ProfileMenuTile(
-                  icon: Icons.help_outline,
-                  title: AppStrings.help,
-                  onTap: () => context.push(AppRoutes.profileHelp),
+                  icon: Icons.support_agent_outlined,
+                  title: AppStrings.customerSupport,
+                  onTap: () => context.push(AppRoutes.profileSupport),
                 ),
                 const Divider(height: AppSpacing.lg),
                 ProfileMenuTile(

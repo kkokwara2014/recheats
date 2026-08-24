@@ -24,6 +24,7 @@ import '../../features/profile/presentation/address_form_screen.dart';
 import '../../features/profile/presentation/edit_profile_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/favorites/presentation/favorites_screen.dart';
+import '../../features/profile/presentation/customer_support_screen.dart';
 import '../../features/profile/presentation/profile_secondary_screens.dart';
 import '../../features/profile/presentation/saved_addresses_screen.dart';
 import '../../features/shop/presentation/fulfillment_settings_screen.dart';
@@ -187,9 +188,20 @@ abstract final class AppRouter {
           builder: (context, state) => const NotificationsScreen(),
         ),
         GoRoute(
+          path: AppRoutes.profileSupport,
+          name: 'profile-support',
+          builder: (context, state) => const CustomerSupportScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.profileSupportReport,
+          name: 'profile-support-report',
+          builder: (context, state) => const ReportOrderProblemScreen(),
+        ),
+        // Legacy Help path — same screen as Customer Support.
+        GoRoute(
           path: AppRoutes.profileHelp,
           name: 'profile-help',
-          builder: (context, state) => const HelpScreen(),
+          builder: (context, state) => const CustomerSupportScreen(),
         ),
         GoRoute(
           path: AppRoutes.foundation,

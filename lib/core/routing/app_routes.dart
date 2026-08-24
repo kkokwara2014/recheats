@@ -28,6 +28,8 @@ abstract final class AppRoutes {
   static const String profileFavorites = '/profile/favorites';
   static const String profileNotifications = '/profile/notifications';
   static const String profileHelp = '/profile/help';
+  static const String profileSupport = '/profile/support';
+  static const String profileSupportReport = '/profile/support/report';
 
   /// Module 1 foundation demos (kept for local verification).
   static const String foundation = '/foundation';

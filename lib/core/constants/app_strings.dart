@@ -352,6 +352,26 @@ abstract final class AppStrings {
   static const String notifPromotionsBody =
       'Occasional specials from RechEats.';
   static const String help = 'Help';
+  static const String customerSupport = 'Customer Support';
+  static const String supportContactSection = 'Contact RechEats';
+  static const String supportCall = 'Call';
+  static const String supportEmail = 'Email';
+  static const String supportWhatsApp = 'WhatsApp';
+  static const String supportReportSection = 'Report an Order Problem';
+  static const String supportReportSubtitle =
+      'Tell us what went wrong and we\'ll help sort it out.';
+  static const String supportProblemMissing = 'Missing item';
+  static const String supportProblemWrong = 'Wrong item';
+  static const String supportProblemLate = 'Late order';
+  static const String supportProblemPayment = 'Payment issue';
+  static const String supportProblemOther = 'Other';
+  static const String supportLaunchFailed =
+      'Couldn\'t open that app. Try another contact option.';
+  static String supportReportSubject(String issue) =>
+      'RechEats order problem: $issue';
+  static String supportReportBody(String issue) =>
+      'Hi RechEats,\n\nI need help with an order.\n\nIssue: $issue\n\n'
+      'Order number (if you have it):\n\nThanks';
   static const String helpKitchen = 'Rechael\'s kitchen';
   static const String helpHoursTitle = 'Ordering hours';
   static const String helpHoursBody =

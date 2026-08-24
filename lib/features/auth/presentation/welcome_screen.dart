@@ -7,8 +7,6 @@ import '../../../core/constants/app_strings.dart';
 import '../../../core/routing/app_routes.dart';
 
 /// Entry point when the user is not signed in.
-///
-/// Full auth UI lands in the Auth module; this keeps splash routing complete.
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
@@ -50,13 +48,18 @@ class WelcomeScreen extends StatelessWidget {
               ),
               const Spacer(),
               FilledButton(
-                onPressed: () => context.go(AppRoutes.home),
-                child: const Text(AppStrings.continueAsGuest),
+                onPressed: () => context.push(AppRoutes.login),
+                child: const Text(AppStrings.signIn),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              OutlinedButton(
+                onPressed: () => context.push(AppRoutes.register),
+                child: const Text(AppStrings.createAccount),
               ),
               const SizedBox(height: AppSpacing.sm),
               TextButton(
-                onPressed: () => context.go(AppRoutes.foundation),
-                child: const Text(AppStrings.openFoundation),
+                onPressed: () => context.go(AppRoutes.home),
+                child: const Text(AppStrings.continueAsGuest),
               ),
             ],
           ),

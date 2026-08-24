@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "104738682294",
+    "project_id": "recheats",
+    "storage_bucket": "recheats.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:104738682294:android:ed2d7c3434149b82f47d17",
+        "android_client_info": {
+          "package_name": "org.recheats"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDP5xEh269rrkqpKi_IjqzYARjrgUsi7RM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

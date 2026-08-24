@@ -3,7 +3,7 @@ enum StartupDestination {
   /// No Firebase session — show welcome / sign-in entry.
   welcome,
 
-  /// Signed in but profile onboarding is incomplete.
+  /// First-run intro not finished, or profile onboarding is incomplete.
   onboarding,
 
   /// Signed in but the customer account is deactivated.

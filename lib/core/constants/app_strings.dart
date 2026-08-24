@@ -29,9 +29,21 @@ abstract final class AppStrings {
   static const String openFoundation = 'Open foundation demos';
   static const String continueLabel = 'Continue';
 
-  static const String onboardingTitle = 'Welcome to RechEats';
-  static const String onboardingBody =
-      'A short onboarding flow will live here. For now, continue into the app.';
+  static const String onboardingSkip = 'Skip';
+  static const String onboardingNext = 'Next';
+  static const String onboardingGetStarted = 'Get Started';
+
+  static const String onboardingPage1Title = 'Authentic Nigerian Delicacies';
+  static const String onboardingPage1Body =
+      'Discover delicious Nigerian meals prepared by Rechael.';
+
+  static const String onboardingPage2Title = 'Order With Ease';
+  static const String onboardingPage2Body =
+      'Browse the menu and place your order in just a few taps.';
+
+  static const String onboardingPage3Title = 'Freshly Prepared for You';
+  static const String onboardingPage3Body =
+      'Choose pickup or delivery and receive your order.';
 
   static const String accountInactiveTitle = 'Account inactive';
   static const String accountInactiveBody =

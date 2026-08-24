@@ -1,9 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/constants/app_strings.dart';
 import '../data/onboarding_repository.dart';
 import '../domain/onboarding_page.dart';
-import '../../../core/constants/app_strings.dart';
-import 'package:flutter/material.dart';
 
 final onboardingRepositoryProvider = Provider<OnboardingRepository>((ref) {
   return SharedPreferencesOnboardingRepository();

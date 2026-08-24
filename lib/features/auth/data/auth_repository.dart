@@ -170,6 +170,7 @@ class FirebaseAuthRepository implements AuthRepository {
     }
 
     try {
+      await FirebaseBootstrap.pushNotifications.clearForCurrentUser();
       await _firebaseAuth.signOut();
       return const Success(null);
     } catch (error, stackTrace) {

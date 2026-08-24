@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_strings.dart';
+import '../../../favorites/presentation/widgets/favorite_button.dart';
 import '../../../menu/domain/food_item.dart';
 import '../../../menu/presentation/widgets/food_image.dart';
 
@@ -47,7 +48,21 @@ class FoodItemCard extends StatelessWidget {
                   ),
                   child: AspectRatio(
                     aspectRatio: 4 / 3,
-                    child: FoodImage(item: item),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        FoodImage(item: item),
+                        Positioned(
+                          top: AppSpacing.xxs,
+                          right: AppSpacing.xxs,
+                          child: FavoriteButton(
+                            foodItemId: item.id,
+                            foodItemName: item.name,
+                            overlay: true,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 Expanded(

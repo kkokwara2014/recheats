@@ -5,11 +5,16 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../cart/domain/cart_line_item.dart';
 
-/// Read-only list of cart lines under "Your order" on checkout.
+/// Read-only list of cart lines under a section title.
 class CheckoutOrderSummary extends StatelessWidget {
-  const CheckoutOrderSummary({super.key, required this.lines});
+  const CheckoutOrderSummary({
+    super.key,
+    required this.lines,
+    this.title = AppStrings.checkoutYourOrder,
+  });
 
   final List<CartLineItem> lines;
+  final String title;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +24,7 @@ class CheckoutOrderSummary extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          AppStrings.checkoutYourOrder,
+          title,
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w700,
           ),

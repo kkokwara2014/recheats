@@ -10,6 +10,7 @@ import '../../../core/widgets/app_loading.dart';
 import '../../../core/widgets/responsive_layout.dart';
 import '../../cart/application/cart_providers.dart';
 import '../../cart/domain/cart_line_item.dart';
+import '../../favorites/presentation/widgets/favorite_button.dart';
 import '../application/menu_providers.dart';
 import '../domain/food_item.dart';
 import '../domain/food_option.dart';
@@ -224,6 +225,12 @@ class _FoodItemDetailScreenState extends ConsumerState<FoodItemDetailScreen> {
                       pinned: true,
                       expandedHeight: 300,
                       title: Text(item.name),
+                      actions: [
+                        FavoriteButton(
+                          foodItemId: item.id,
+                          foodItemName: item.name,
+                        ),
+                      ],
                       flexibleSpace: FlexibleSpaceBar(
                         background: FoodImage(item: item),
                       ),

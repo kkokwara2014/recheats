@@ -3,44 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_strings.dart';
 import '../../../core/errors/error_handler.dart';
-import '../../../core/widgets/app_empty_state.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_loading.dart';
 import '../../../core/widgets/responsive_layout.dart';
 import '../application/profile_providers.dart';
 import '../domain/notification_prefs.dart';
-
-class OrderHistoryScreen extends StatelessWidget {
-  const OrderHistoryScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.orderHistory)),
-      body: const AppEmptyState(
-        icon: Icons.receipt_long_outlined,
-        title: AppStrings.orderHistoryEmptyTitle,
-        message: AppStrings.orderHistoryEmptyBody,
-      ),
-    );
-  }
-}
-
-class FavoritesScreen extends StatelessWidget {
-  const FavoritesScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.favorites)),
-      body: const AppEmptyState(
-        icon: Icons.favorite_outline,
-        title: AppStrings.favoritesEmptyTitle,
-        message: AppStrings.favoritesEmptyBody,
-      ),
-    );
-  }
-}
 
 class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});

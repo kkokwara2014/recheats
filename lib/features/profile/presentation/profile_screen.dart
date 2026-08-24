@@ -10,6 +10,7 @@ import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_loading.dart';
 import '../../../core/widgets/responsive_layout.dart';
 import '../../auth/application/auth_providers.dart';
+import '../../favorites/application/favorites_providers.dart';
 import '../application/profile_providers.dart';
 import 'widgets/profile_widgets.dart';
 
@@ -45,6 +46,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final profileAsync = ref.watch(customerProfileProvider);
+    final favoriteCount = ref.watch(favoriteIdsProvider).maybeWhen(
+          data: (ids) => ids.length,
+          orElse: () => 0,
+        );
 
     return Scaffold(
       appBar: AppBar(title: const Text(AppStrings.profileTitle)),
@@ -157,6 +162,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ProfileMenuTile(
                   icon: Icons.favorite_outline,
                   title: AppStrings.favorites,
+                  subtitle: favoriteCount == 0
+                      ? AppStrings.favoritesEmptyTitle
+                      : AppStrings.favoritesCount(favoriteCount),
                   onTap: () => context.push(AppRoutes.profileFavorites),
                 ),
                 ProfileMenuTile(

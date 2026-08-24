@@ -49,6 +49,22 @@ class OrderTiming {
         if (scheduledAt != null) 'scheduledAt': scheduledAt!.toIso8601String(),
       };
 
+  factory OrderTiming.fromMap(Map<String, dynamic> map) {
+    final modeName = map['mode'] as String? ?? OrderTimingMode.asap.name;
+    final mode = OrderTimingMode.values.firstWhere(
+      (value) => value.name == modeName,
+      orElse: () => OrderTimingMode.asap,
+    );
+    final scheduledRaw = map['scheduledAt'];
+    DateTime? scheduledAt;
+    if (scheduledRaw is String) {
+      scheduledAt = DateTime.tryParse(scheduledRaw);
+    } else if (scheduledRaw is DateTime) {
+      scheduledAt = scheduledRaw;
+    }
+    return OrderTiming(mode: mode, scheduledAt: scheduledAt);
+  }
+
   /// Formats like "Friday, 6:30 PM" without needing the intl package.
   static String formatScheduledAt(DateTime at) {
     const weekdays = [

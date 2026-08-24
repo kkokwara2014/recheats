@@ -10,6 +10,7 @@ import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_loading.dart';
 import '../../../core/widgets/responsive_layout.dart';
 import '../../cart/application/cart_providers.dart';
+import '../../favorites/application/favorites_providers.dart';
 import '../../menu/application/menu_providers.dart';
 import '../../menu/domain/food_item.dart';
 import 'widgets/home_category_chips.dart';
@@ -89,6 +90,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     final menuAsync = ref.watch(availableMenuItemsProvider);
     final selectedCategory = ref.watch(selectedMenuCategoryProvider);
+    final favoritesAsync = ref.watch(favoriteFoodItemsProvider);
+    final favoriteItems = favoritesAsync.maybeWhen(
+      data: (items) => items.where((item) => item.isAvailable).toList(),
+      orElse: () => const <FoodItem>[],
+    );
 
     return Scaffold(
       body: SafeArea(
@@ -130,6 +136,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           key: _categoriesKey,
                           child: const HomeCategoryChips(),
                         ),
+                        if (favoriteItems.isNotEmpty) ...[
+                          const SizedBox(height: AppSpacing.xl),
+                          const HomeSectionHeader(
+                            title: AppStrings.favorites,
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          HomeFoodCarousel(
+                            items: favoriteItems,
+                            onAdd: _onAdd,
+                            onItemTap: _openItem,
+                          ),
+                        ],
                         const SizedBox(height: AppSpacing.xl),
                         KeyedSubtree(
                           key: _specialsKey,

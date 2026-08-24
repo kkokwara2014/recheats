@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -7,7 +9,9 @@ import 'package:flutter/foundation.dart';
 
 import '../../core/config/app_env.dart';
 import '../../firebase_options.dart';
+import 'fcm_background.dart';
 import 'firebase_services.dart';
+import 'push_notifications.dart';
 
 /// Initializes Firebase and related foundation services.
 class FirebaseBootstrap {
@@ -18,6 +22,8 @@ class FirebaseBootstrap {
   static CrashlyticsService crashlytics = CrashlyticsService(enabled: false);
   static MessagingService messaging = const MessagingService(enabled: false);
   static AppCheckService appCheck = const AppCheckService(enabled: false);
+  static PushNotificationController pushNotifications =
+      PushNotificationController();
 
   static FirebaseBootstrapResult get result =>
       _result ??
@@ -72,6 +78,7 @@ class FirebaseBootstrap {
     crashlytics = CrashlyticsService(enabled: false);
     messaging = const MessagingService(enabled: false);
     appCheck = const AppCheckService(enabled: false);
+    pushNotifications = PushNotificationController(messaging: messaging);
   }
 
   static Future<void> _configureAppCheck() async {
@@ -109,7 +116,10 @@ class FirebaseBootstrap {
   }
 
   static Future<void> _configureMessaging() async {
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
     messaging = _LiveMessagingService(enabled: true);
+    pushNotifications = PushNotificationController(messaging: messaging);
+    await pushNotifications.start();
   }
 }
 
@@ -178,9 +188,23 @@ class _LiveCrashlyticsService extends CrashlyticsService {
 }
 
 class _LiveMessagingService extends MessagingService {
-  const _LiveMessagingService({required super.enabled});
+  _LiveMessagingService({required super.enabled});
 
   FirebaseMessaging get _messaging => FirebaseMessaging.instance;
+
+  static const String androidOrderChannelId = 'recheats_orders';
+
+  @override
+  Stream<IncomingPushMessage> get onForegroundMessage {
+    if (!enabled) return const Stream.empty();
+    return FirebaseMessaging.onMessage.map(_mapMessage);
+  }
+
+  @override
+  Stream<String> get onTokenRefresh {
+    if (!enabled) return const Stream.empty();
+    return _messaging.onTokenRefresh;
+  }
 
   @override
   Future<String?> getToken() async {
@@ -191,6 +215,32 @@ class _LiveMessagingService extends MessagingService {
   @override
   Future<void> requestPermission() async {
     if (!enabled) return;
-    await _messaging.requestPermission();
+    await _messaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+    // iOS: show alerts while app is foregrounded. No-op on Android.
+    await _messaging.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+  }
+
+  @override
+  Future<void> ensureAndroidNotificationChannel() async {
+    if (!enabled || kIsWeb) return;
+    if (defaultTargetPlatform == TargetPlatform.android && kDebugMode) {
+      debugPrint('FCM Android channel: $androidOrderChannelId');
+    }
+  }
+
+  static IncomingPushMessage _mapMessage(RemoteMessage message) {
+    return IncomingPushMessage(
+      title: message.notification?.title,
+      body: message.notification?.body,
+      data: message.data.map((key, value) => MapEntry(key, value.toString())),
+    );
   }
 }

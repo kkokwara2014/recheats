@@ -52,6 +52,7 @@ abstract final class ErrorHandler {
       AuthException() => mapped.message,
       NotFoundException() => mapped.message,
       ValidationException() => mapped.message,
+      PaymentException() => mapped.message,
       UnknownAppException() =>
         'Something went wrong. Please try again.',
     };

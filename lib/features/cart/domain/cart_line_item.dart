@@ -72,4 +72,24 @@ class CartLineItem {
       specialInstructions: specialInstructions ?? this.specialInstructions,
     );
   }
+
+  /// Rebuilds a line from an order document (subset of cart fields).
+  factory CartLineItem.fromOrderMap(Map<String, dynamic> map) {
+    final labelsRaw = map['variationLabels'];
+    final labels = <String>[];
+    if (labelsRaw is List) {
+      for (final entry in labelsRaw) {
+        if (entry is String) labels.add(entry);
+      }
+    }
+    return CartLineItem(
+      id: map['id'] as String? ?? '',
+      foodItemId: map['foodItemId'] as String? ?? '',
+      name: map['name'] as String? ?? '',
+      unitPrice: (map['unitPrice'] as num?)?.toDouble() ?? 0,
+      quantity: (map['quantity'] as num?)?.toInt() ?? 1,
+      variationLabels: List.unmodifiable(labels),
+      specialInstructions: map['specialInstructions'] as String? ?? '',
+    );
+  }
 }

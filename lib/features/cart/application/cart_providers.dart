@@ -134,4 +134,22 @@ class CartNotifier extends Notifier<CartState> {
   }
 
   void clear() => state = const CartState();
+
+  /// Adds every line from a past order (Order Again).
+  void addFromOrder(Iterable<CartLineItem> lines) {
+    for (final line in lines) {
+      addItem(
+        foodItemId: line.foodItemId,
+        name: line.name,
+        unitPrice: line.unitPrice,
+        quantity: line.quantity,
+        imageAsset: line.imageAsset,
+        imageUrl: line.imageUrl,
+        variationLabels: line.variationLabels,
+        variationSelections: line.variationSelections,
+        addOns: line.addOns,
+        specialInstructions: line.specialInstructions,
+      );
+    }
+  }
 }

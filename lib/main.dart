@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app.dart';
 import 'core/config/app_config.dart';
 import 'core/errors/error_handler.dart';
+import 'features/payment/data/stripe_bootstrap.dart';
 import 'services/firebase/firebase_bootstrap.dart';
 
 Future<void> main() async {
@@ -22,6 +23,7 @@ Future<void> main() async {
 
     await AppConfig.ensureInitialized();
     await FirebaseBootstrap.initialize();
+    await StripeBootstrap.initialize();
 
     ErrorHandler.install(crashlytics: FirebaseBootstrap.crashlytics);
 

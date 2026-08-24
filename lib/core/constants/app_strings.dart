@@ -153,10 +153,16 @@ abstract final class AppStrings {
   static const String orderTimingPickSlot = 'Choose day & time';
   static const String orderTimingChangeSlot = 'Change day & time';
   static const String paymentTitle = 'Payment';
-  static const String paymentArrangeWithRechael = 'Arrange with Rechael';
-  static const String paymentArrangeBody =
-      'No in-app payment yet. Rechael will confirm how to pay when your '
-      'order is accepted — cash, transfer, or another arrangement.';
+  static const String paymentSecureHeadline = 'Pay securely with Stripe';
+  static const String paymentSecureBody =
+      'Card details are handled by Stripe — RechEats never stores them in '
+      'Firebase. Apple Pay and Google Pay appear when your device supports them.';
+  static const String paymentMethodCard = 'Credit / debit card';
+  static const String paymentMethodApplePay = 'Apple Pay';
+  static const String paymentMethodGooglePay = 'Google Pay';
+  static const String paymentCanceled = 'Payment canceled. Your order was not placed.';
+  static const String paymentRequired = 'Complete payment to place your order.';
+  static const String payAndPlaceOrder = 'Pay & place order';
   static String orderConfirmedTiming(String label) => 'Timing: $label';
   static String checkoutQtyPrice(int qty, String price) =>
       '${qty}× · $price';
@@ -174,10 +180,37 @@ abstract final class AppStrings {
       address.trim().isEmpty
           ? 'Your delivery order has been recorded.'
           : 'Your delivery order has been recorded for $address.';
-  static const String orderConfirmedTitle = 'Order placed';
-  static const String orderConfirmedHeadline = 'We got your order';
+  static const String orderConfirmedTitle = 'Confirmation';
+  static const String orderConfirmedHeadline = 'Order Confirmed! 🎉';
+  static String orderConfirmedNumber(String code) => 'Order #$code';
+  static const String orderConfirmedThanks =
+      'Thank you for ordering from RechEats.';
+  static const String orderConfirmedItems = 'Items';
+  static const String orderConfirmedFulfillment = 'Pickup / delivery';
+  static const String orderConfirmedPrepTime = 'Expected preparation time';
+  static const String orderConfirmedStatus = 'Order status';
   static String orderConfirmedTotal(String amount) => 'Total $amount';
+  static const String trackOrder = 'Track Order';
+  static const String trackOrderTitle = 'Track order';
+  static const String trackOrderSubtitle =
+      'We\'ll update this as your order moves through the kitchen.';
+  static const String trackOrderSubtitlePickup =
+      'Status updates as your order is prepared for pickup. No GPS tracking.';
+  static const String trackOrderSubtitleDelivery =
+      'Status updates as your order is prepared and sent out. No rider map yet.';
   static const String backToMenu = 'Back to menu';
+
+  static const String feedbackTitle = 'How was your RechEats experience?';
+  static const String feedbackCommentLabel = 'Tell us what you think';
+  static const String feedbackCommentHint =
+      'Optional — your note goes privately to Rechael.';
+  static const String feedbackSubmit = 'Send feedback';
+  static const String feedbackSending = 'Sending…';
+  static const String feedbackSkip = 'Not now';
+  static const String feedbackThanks =
+      'Thanks! Your feedback was sent to Rechael.';
+  static const String feedbackRateCta = 'Rate your experience';
+  static const String feedbackShareCta = 'Share feedback';
 
   static const String fulfillmentSettings = 'Pickup & delivery';
   static const String fulfillmentSettingsMenuSubtitle =
@@ -287,10 +320,30 @@ abstract final class AppStrings {
   static const String orderHistoryEmptyTitle = 'No orders yet';
   static const String orderHistoryEmptyBody =
       'When you place an order, it will show up here.';
-  static const String favorites = 'Favorites';
+  static const String currentOrder = 'Current order';
+  static const String currentOrders = 'Current orders';
+  static const String previousOrders = 'Previous orders';
+  static const String orderAgain = 'Order again';
+  static const String orderAgainAdded = 'Items added to your cart';
+  static const String orderHistoryDate = 'Date';
+  static const String orderHistoryItems = 'Items';
+  static const String orderHistoryStatus = 'Status';
+  static const String favorites = 'My Favorites';
   static const String favoritesEmptyTitle = 'No favorites yet';
   static const String favoritesEmptyBody =
-      'Tap the heart on menu items you love to find them faster.';
+      'Tap the heart on meals you love to find your preferred Nigerian dishes faster.';
+  static const String favoritesSignInRequired =
+      'Sign in to save favorites and find them quickly next time.';
+  static const String addToFavorites = 'Add to favorites';
+  static const String removeFromFavorites = 'Remove from favorites';
+  static const String favoriteAdded = 'Saved to My Favorites';
+  static const String favoriteRemoved = 'Removed from My Favorites';
+  static String favoriteAddedNamed(String name) =>
+      '$name — saved to My Favorites';
+  static String favoriteRemovedNamed(String name) =>
+      '$name — removed from My Favorites';
+  static String favoritesCount(int count) =>
+      count == 1 ? '1 saved dish' : '$count saved dishes';
   static const String notifications = 'Notifications';
   static const String notifOrderUpdates = 'Order updates';
   static const String notifOrderUpdatesBody =

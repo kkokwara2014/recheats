@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Register merchant.org.recheats (or your STRIPE_MERCHANT_IDENTIFIER) in
+	     Apple Developer + Stripe Dashboard, then enable Apple Pay capability. -->
+	<key>com.apple.developer.in-app-payments</key>
+	<array>
+		<string>merchant.org.recheats</string>
+	</array>
+	<!-- Push Notifications (APNs). Use development for debug builds; production for App Store. -->
+	<key>aps-environment</key>
+	<string>development</string>
+</dict>
+</plist>
+

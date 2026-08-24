@@ -23,7 +23,14 @@ import 'package:recheats/features/onboarding/application/onboarding_providers.da
 import 'package:recheats/features/onboarding/data/onboarding_repository.dart';
 import 'package:recheats/features/orders/application/order_providers.dart';
 import 'package:recheats/features/orders/data/order_repository.dart';
+import 'package:recheats/features/orders/domain/order_timeline.dart';
 import 'package:recheats/features/orders/domain/place_order_request.dart';
+import 'package:recheats/features/orders/domain/placed_order.dart';
+import 'package:recheats/features/orders/presentation/track_order_screen.dart';
+import 'package:recheats/features/payment/application/payment_providers.dart';
+import 'package:recheats/features/payment/data/payment_repository.dart';
+import 'package:recheats/features/payment/domain/collect_payment_request.dart';
+import 'package:recheats/features/payment/domain/payment_result.dart';
 import 'package:recheats/features/profile/application/profile_providers.dart';
 import 'package:recheats/features/profile/data/profile_repository.dart';
 import 'package:recheats/features/profile/domain/notification_prefs.dart';
@@ -504,6 +511,7 @@ void main() {
     expect(pickup.valueOrNull?.isPickup, isTrue);
     expect(pickup.valueOrNull?.deliveryFee, 0);
     expect(pickup.valueOrNull?.timing.isAsap, isTrue);
+    expect(pickup.valueOrNull?.status, OrderStatus.received);
 
     final scheduledAt = DateTime(2026, 8, 28, 18, 30);
     final delivery = await orders.placeOrder(
@@ -533,6 +541,177 @@ void main() {
     expect(delivery.valueOrNull?.timing.isScheduled, isTrue);
     expect(delivery.valueOrNull?.timing.displayLabel, 'Friday, 6:30 PM');
     expect(orders.orders, hasLength(2));
+  });
+
+  test('order timeline uses pickup vs delivery status steps', () {
+    expect(
+      OrderTimeline.stepsFor(FulfillmentMethod.pickup).map((s) => s.label),
+      [
+        'Order Received',
+        'Confirmed',
+        'Preparing',
+        'Ready',
+        'Completed',
+      ],
+    );
+    expect(
+      OrderTimeline.stepsFor(FulfillmentMethod.delivery).map((s) => s.label),
+      [
+        'Order Received',
+        'Confirmed',
+        'Preparing',
+        'Out for Delivery',
+        'Delivered',
+      ],
+    );
+    expect(parseOrderStatus('recorded'), OrderStatus.confirmed);
+    expect(parseOrderStatus('outForDelivery'), OrderStatus.outForDelivery);
+    expect(
+      OrderTimeline.activeIndex(
+        OrderStatus.preparing,
+        FulfillmentMethod.pickup,
+      ),
+      2,
+    );
+  });
+
+  test('fake order repository advances status for live tracking', () async {
+    final orders = FakeOrderRepository();
+    final placed = await orders.placeOrder(
+      const PlaceOrderRequest(
+        lines: [
+          CartLineItem(
+            id: 'c1',
+            foodItemId: 'jollof-rice',
+            name: 'Jollof Rice',
+            unitPrice: 15,
+            quantity: 1,
+          ),
+        ],
+        method: FulfillmentMethod.delivery,
+        delivery: DeliveryDetails(
+          streetAddress: '1 Main St',
+          city: 'Rockville',
+          state: 'MD',
+          zip: '20850',
+        ),
+        subtotal: 15,
+        deliveryFee: 5,
+        total: 20,
+      ),
+    );
+    final orderId = placed.valueOrNull!.id;
+
+    final events = <OrderStatus>[];
+    final sub = orders.watchOrder(orderId).listen((result) {
+      final status = result.valueOrNull?.status;
+      if (status != null) events.add(status);
+    });
+
+    await Future<void>.delayed(Duration.zero);
+    await orders.updateOrderStatus(
+      orderId: orderId,
+      status: OrderStatus.confirmed,
+    );
+    await orders.updateOrderStatus(
+      orderId: orderId,
+      status: OrderStatus.outForDelivery,
+    );
+    await Future<void>.delayed(Duration.zero);
+    await sub.cancel();
+
+    expect(events, contains(OrderStatus.received));
+    expect(events, contains(OrderStatus.confirmed));
+    expect(events, contains(OrderStatus.outForDelivery));
+  });
+
+  testWidgets('track order screen shows pickup timeline', (tester) async {
+    final orders = FakeOrderRepository();
+    final placed = await orders.placeOrder(
+      const PlaceOrderRequest(
+        lines: [
+          CartLineItem(
+            id: 'c1',
+            foodItemId: 'jollof-rice',
+            name: 'Jollof Rice',
+            unitPrice: 15,
+            quantity: 1,
+          ),
+        ],
+        method: FulfillmentMethod.pickup,
+        pickupLocation: 'Rockville, Maryland',
+        subtotal: 15,
+        deliveryFee: 0,
+        total: 15,
+      ),
+    );
+    final order = placed.valueOrNull!;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          orderRepositoryProvider.overrideWith((ref) => orders),
+        ],
+        child: MaterialApp(
+          home: TrackOrderScreen(order: order),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Order Received'), findsWidgets);
+    expect(find.text('Confirmed'), findsOneWidget);
+    expect(find.text('Preparing'), findsOneWidget);
+    expect(find.text('Ready'), findsOneWidget);
+    expect(find.text('Completed'), findsOneWidget);
+    expect(find.text('Out for Delivery'), findsNothing);
+    expect(find.text(AppStrings.trackOrderSubtitlePickup), findsOneWidget);
+  });
+
+  testWidgets('track order screen shows delivery timeline', (tester) async {
+    final orders = FakeOrderRepository();
+    final placed = await orders.placeOrder(
+      const PlaceOrderRequest(
+        lines: [
+          CartLineItem(
+            id: 'c1',
+            foodItemId: 'jollof-rice',
+            name: 'Jollof Rice',
+            unitPrice: 15,
+            quantity: 1,
+          ),
+        ],
+        method: FulfillmentMethod.delivery,
+        delivery: DeliveryDetails(
+          streetAddress: '1 Main St',
+          city: 'Rockville',
+          state: 'MD',
+          zip: '20850',
+        ),
+        subtotal: 15,
+        deliveryFee: 5,
+        total: 20,
+      ),
+    );
+    final order = placed.valueOrNull!;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          orderRepositoryProvider.overrideWith((ref) => orders),
+        ],
+        child: MaterialApp(
+          home: TrackOrderScreen(order: order),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Out for Delivery'), findsOneWidget);
+    expect(find.text('Delivered'), findsOneWidget);
+    expect(find.text('Ready'), findsNothing);
+    expect(find.text('Completed'), findsNothing);
+    expect(find.text(AppStrings.trackOrderSubtitleDelivery), findsOneWidget);
   });
 
   testWidgets('fulfillment settings can disable delivery', (tester) async {
@@ -570,10 +749,12 @@ void main() {
   testWidgets('checkout pickup places order without delivery fee', (tester) async {
     final shop = FakeShopRepository();
     final orders = FakeOrderRepository();
+    final payments = FakePaymentRepository();
     final container = ProviderContainer(
       overrides: [
         shopRepositoryProvider.overrideWith((ref) => shop),
         orderRepositoryProvider.overrideWith((ref) => orders),
+        paymentRepositoryProvider.overrideWith((ref) => payments),
         profileRepositoryProvider.overrideWith((ref) => FakeProfileRepository()),
       ],
     );
@@ -619,17 +800,42 @@ void main() {
       scrollable: checkoutScroll,
     );
     expect(find.text(AppStrings.paymentTitle), findsOneWidget);
+    expect(find.text(AppStrings.paymentSecureHeadline), findsOneWidget);
+    expect(find.text(AppStrings.paymentMethodCard), findsOneWidget);
 
-    await tester.tap(find.text(AppStrings.placeOrder));
+    await tester.tap(find.text(AppStrings.payAndPlaceOrder));
     await tester.pumpAndSettle();
 
+    expect(payments.requests, hasLength(1));
+    expect(payments.requests.first.amountCents, 1500);
+    expect(payments.requests.first.currency, 'usd');
     expect(orders.orders, hasLength(1));
     expect(orders.orders.first.isPickup, isTrue);
     expect(orders.orders.first.timing.isAsap, isTrue);
     expect(orders.orders.first.total, 15);
+    expect(orders.orders.first.payment?.isPaid, isTrue);
+    expect(orders.orders.first.payment?.paymentIntentId, isNotEmpty);
+    expect(orders.orders.first.displayCode, 'RE1001');
     expect(find.text(AppStrings.orderConfirmedHeadline), findsOneWidget);
-    expect(find.textContaining('Timing: ASAP'), findsOneWidget);
+    expect(find.text(AppStrings.orderConfirmedNumber('RE1001')), findsOneWidget);
+    expect(find.text(AppStrings.orderConfirmedThanks), findsOneWidget);
+    expect(find.text(AppStrings.orderConfirmedItems), findsOneWidget);
+    expect(find.text(AppStrings.trackOrder), findsOneWidget);
+    expect(find.text(AppStrings.orderTimingAsap), findsWidgets);
     expect(container.read(cartProvider).isEmpty, isTrue);
+  });
+
+  test('fake payment repository collects usd cents without card data', () async {
+    final payments = FakePaymentRepository();
+    final result = await payments.collectPayment(
+      const CollectPaymentRequest(amountCents: 2099, currency: 'usd'),
+    );
+    expect(result, isA<PaymentSucceeded>());
+    final payment = (result as PaymentSucceeded).payment;
+    expect(payment.provider, 'stripe');
+    expect(payment.amountCents, 2099);
+    expect(payment.isPaid, isTrue);
+    expect(payment.toMap().containsKey('cardNumber'), isFalse);
   });
 
   testWidgets('profile hub shows account menu and logs out', (tester) async {

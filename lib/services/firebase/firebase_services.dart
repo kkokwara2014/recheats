@@ -82,10 +82,29 @@ class CrashlyticsService {
   }
 }
 
+/// Normalized FCM payload for UI / persistence (no plugin types).
+class IncomingPushMessage {
+  const IncomingPushMessage({
+    this.title,
+    this.body,
+    this.data = const <String, String>{},
+  });
+
+  final String? title;
+  final String? body;
+  final Map<String, String> data;
+}
+
 class MessagingService {
   const MessagingService({required this.enabled});
 
   final bool enabled;
+
+  /// Foreground FCM stream (empty when disabled).
+  Stream<IncomingPushMessage> get onForegroundMessage => const Stream.empty();
+
+  /// Token refresh stream (empty when disabled).
+  Stream<String> get onTokenRefresh => const Stream.empty();
 
   Future<String?> getToken() async {
     if (!enabled) return null;
@@ -93,6 +112,11 @@ class MessagingService {
   }
 
   Future<void> requestPermission() async {
+    if (!enabled) return;
+  }
+
+  /// Creates the Android channel used for order-status pushes (no-op elsewhere).
+  Future<void> ensureAndroidNotificationChannel() async {
     if (!enabled) return;
   }
 }

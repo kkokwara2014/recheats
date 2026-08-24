@@ -47,5 +47,10 @@
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>RechEats needs photo access so you can set a profile picture.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
 </dict>
 </plist>

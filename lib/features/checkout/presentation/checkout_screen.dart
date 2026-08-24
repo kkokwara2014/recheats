@@ -15,9 +15,12 @@ import '../../cart/application/cart_providers.dart';
 import '../../cart/domain/cart_state.dart';
 import '../../orders/application/order_providers.dart';
 import '../../orders/domain/place_order_request.dart';
-import '../../orders/domain/placed_order.dart';
+import '../../payment/application/payment_providers.dart';
+import '../../payment/domain/collect_payment_request.dart';
+import '../../payment/domain/payment_result.dart';
 import '../../profile/application/profile_providers.dart';
 import '../../profile/domain/saved_address.dart';
+import '../../menu/application/menu_providers.dart';
 import '../../shop/application/shop_providers.dart';
 import '../../shop/domain/fulfillment_method.dart';
 import '../../shop/domain/shop_fulfillment_settings.dart';
@@ -31,7 +34,7 @@ import 'widgets/fulfillment_method_selector.dart';
 import 'widgets/order_timing_selector.dart';
 import 'widgets/pickup_info_card.dart';
 
-/// One-page checkout: order lines, fulfillment, timing, payment, place order.
+/// One-page checkout: order lines, fulfillment, timing, Stripe payment, place order.
 class CheckoutScreen extends ConsumerStatefulWidget {
   const CheckoutScreen({super.key});
 
@@ -59,39 +62,94 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     }
 
     final method = checkout.method!;
+    final total = checkout.total(cart, settings);
+    final amountCents = (total * 100).round();
+    if (amountCents <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(AppStrings.paymentRequired)),
+      );
+      return;
+    }
+
     setState(() => _placing = true);
 
     final profile = ref.read(customerProfileProvider).asData?.value;
-    final request = PlaceOrderRequest(
-      userId: profile?.uid,
-      lines: cart.lines,
-      method: method,
-      pickupLocation:
-          method == FulfillmentMethod.pickup ? settings.pickupLocation : null,
-      delivery:
-          method == FulfillmentMethod.delivery ? checkout.delivery : null,
-      timing: checkout.timing,
-      subtotal: cart.subtotal,
-      deliveryFee: checkout.deliveryFee(settings),
-      total: checkout.total(cart, settings),
-    );
+    final paymentOutcome =
+        await ref.read(paymentRepositoryProvider).collectPayment(
+              CollectPaymentRequest(
+                amountCents: amountCents,
+                currency: 'usd',
+                customerEmail: profile?.email,
+                customerName: profile?.displayName,
+                description: 'RechEats order',
+              ),
+            );
 
-    final result = await ref.read(orderRepositoryProvider).placeOrder(request);
     if (!mounted) return;
 
-    result.when(
-      success: (order) {
-        ref.read(cartProvider.notifier).clear();
-        ref.read(checkoutProvider.notifier).reset();
-        context.go(AppRoutes.orderConfirmation, extra: order);
-      },
-      failure: (error, _) {
+    switch (paymentOutcome) {
+      case PaymentCanceled():
         setState(() => _placing = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(ErrorHandler.userMessage(error))),
+          const SnackBar(content: Text(AppStrings.paymentCanceled)),
         );
-      },
-    );
+        return;
+      case PaymentFailed(:final message):
+        setState(() => _placing = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message)),
+        );
+        return;
+      case PaymentSucceeded(:final payment):
+        final menuItems =
+            ref.read(menuItemsProvider).asData?.value ?? const [];
+        var expectedPrepMinutes = 20;
+        for (final line in cart.lines) {
+          for (final item in menuItems) {
+            if (item.id == line.foodItemId &&
+                item.preparationMinutes > expectedPrepMinutes) {
+              expectedPrepMinutes = item.preparationMinutes;
+            }
+          }
+        }
+
+        final request = PlaceOrderRequest(
+          userId: profile?.uid,
+          lines: cart.lines,
+          method: method,
+          pickupLocation: method == FulfillmentMethod.pickup
+              ? settings.pickupLocation
+              : null,
+          delivery: method == FulfillmentMethod.delivery
+              ? checkout.delivery
+              : null,
+          timing: checkout.timing,
+          expectedPrepMinutes: expectedPrepMinutes,
+          subtotal: cart.subtotal,
+          deliveryFee: checkout.deliveryFee(settings),
+          total: total,
+          payment: payment,
+        );
+
+        final result =
+            await ref.read(orderRepositoryProvider).placeOrder(request);
+        if (!mounted) return;
+
+        result.when(
+          success: (order) {
+            ref.read(cartProvider.notifier).clear();
+            ref.read(checkoutProvider.notifier).reset();
+            invalidateRecentOrders(ref);
+            context.go(AppRoutes.orderConfirmation, extra: order);
+          },
+          failure: (error, _) {
+            setState(() => _placing = false);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(ErrorHandler.userMessage(error))),
+            );
+          },
+        );
+    }
   }
 
   Future<void> _pickScheduleSlot() async {
@@ -321,7 +379,7 @@ class _CheckoutBody extends StatelessWidget {
                               color: AppColors.textOnPrimary,
                             ),
                           )
-                        : const Text(AppStrings.placeOrder),
+                        : const Text(AppStrings.payAndPlaceOrder),
                   ),
                 ),
               ),
@@ -329,97 +387,6 @@ class _CheckoutBody extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-/// Shown after an order is recorded with pickup or delivery details.
-class OrderConfirmationScreen extends StatelessWidget {
-  const OrderConfirmationScreen({super.key, required this.order});
-
-  final PlacedOrder order;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final message = order.isPickup
-        ? AppStrings.pickupReadyMessage(
-            order.pickupLocation ?? AppStrings.locationHint,
-          )
-        : AppStrings.deliveryOrderRecordedMessage(
-            order.delivery?.formattedAddress ?? '',
-          );
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(AppStrings.orderConfirmedTitle),
-        automaticallyImplyLeading: false,
-      ),
-      body: ResponsiveLayout(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Icon(
-                Icons.check_circle_outline,
-                size: 64,
-                color: AppColors.success,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              Text(
-                AppStrings.orderConfirmedHeadline,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodyLarge?.copyWith(height: 1.4),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                AppStrings.orderConfirmedTiming(order.timing.displayLabel),
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-              if (order.isDelivery &&
-                  (order.delivery?.instructions.trim().isNotEmpty ??
-                      false)) ...[
-                const SizedBox(height: AppSpacing.md),
-                Text(
-                  '${AppStrings.deliveryInstructions}: ${order.delivery!.instructions.trim()}',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-              const SizedBox(height: AppSpacing.lg),
-              Text(
-                AppStrings.orderConfirmedTotal(
-                  '\$${order.total.toStringAsFixed(2)}',
-                ),
-                textAlign: TextAlign.center,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.primary,
-                ),
-              ),
-              const Spacer(),
-              FilledButton(
-                onPressed: () => context.go(AppRoutes.home),
-                child: const Text(AppStrings.backToMenu),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

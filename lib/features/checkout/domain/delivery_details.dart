@@ -73,4 +73,16 @@ class DeliveryDetails {
           'instructions': instructions.trim(),
         'formattedAddress': formattedAddress,
       };
+
+  factory DeliveryDetails.fromMap(Map<String, dynamic> map) {
+    return DeliveryDetails(
+      savedAddressId: map['savedAddressId'] as String?,
+      streetAddress: map['streetAddress'] as String? ?? '',
+      apartmentUnit: map['apartmentUnit'] as String? ?? '',
+      city: map['city'] as String? ?? '',
+      state: map['state'] as String? ?? '',
+      zip: map['zip'] as String? ?? '',
+      instructions: map['instructions'] as String? ?? '',
+    );
+  }
 }

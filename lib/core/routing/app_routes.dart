@@ -12,6 +12,7 @@ abstract final class AppRoutes {
   static const String cart = '/cart';
   static const String checkout = '/checkout';
   static const String orderConfirmation = '/order/confirmation';
+  static const String orderTrack = '/order/track';
 
   static const String menuItem = '/menu/item/:id';
   static const String menuManage = '/menu/manage';

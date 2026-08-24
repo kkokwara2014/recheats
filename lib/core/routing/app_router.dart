@@ -16,10 +16,14 @@ import '../../features/menu/presentation/food_item_detail_screen.dart';
 import '../../features/menu/presentation/manage_menu_screen.dart';
 import '../../features/onboarding/presentation/onboarding_screen.dart';
 import '../../features/orders/domain/placed_order.dart';
+import '../../features/orders/presentation/order_confirmation_screen.dart';
+import '../../features/orders/presentation/order_history_screen.dart';
+import '../../features/orders/presentation/track_order_screen.dart';
 import '../../features/profile/domain/saved_address.dart';
 import '../../features/profile/presentation/address_form_screen.dart';
 import '../../features/profile/presentation/edit_profile_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
+import '../../features/favorites/presentation/favorites_screen.dart';
 import '../../features/profile/presentation/profile_secondary_screens.dart';
 import '../../features/profile/presentation/saved_addresses_screen.dart';
 import '../../features/shop/presentation/fulfillment_settings_screen.dart';
@@ -103,6 +107,19 @@ abstract final class AppRouter {
               return const CheckoutScreen();
             }
             return OrderConfirmationScreen(order: order);
+          },
+        ),
+        GoRoute(
+          path: AppRoutes.orderTrack,
+          name: 'order-track',
+          builder: (context, state) {
+            final order = state.extra is PlacedOrder
+                ? state.extra as PlacedOrder
+                : null;
+            if (order == null) {
+              return const CheckoutScreen();
+            }
+            return TrackOrderScreen(order: order);
           },
         ),
         GoRoute(

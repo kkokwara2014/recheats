@@ -42,6 +42,14 @@ final class ValidationException extends AppException {
   });
 }
 
+final class PaymentException extends AppException {
+  const PaymentException(
+    super.message, {
+    super.cause,
+    super.stackTrace,
+  });
+}
+
 final class UnknownAppException extends AppException {
   const UnknownAppException(
     super.message, {

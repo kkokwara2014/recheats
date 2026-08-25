@@ -90,9 +90,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    // Matches the branded icon / native splash background (#022A0E).
+    const splashBackground = Color(0xFF022A0E);
 
     return Scaffold(
-      backgroundColor: AppColors.primary,
+      backgroundColor: splashBackground,
       body: SafeArea(
         child: Center(
           child: AnimatedBuilder(
@@ -105,7 +107,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                     opacity: _markOpacity.value,
                     child: Transform.scale(
                       scale: _markScale.value,
-                      child: const BrandMark(size: 104),
+                      child: const BrandMark(size: 196),
                     ),
                   ),
                   const SizedBox(height: AppSpacing.lg),
@@ -117,20 +119,25 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                         children: [
                           Text(
                             AppStrings.appName,
-                            style: theme.textTheme.displaySmall?.copyWith(
+                            style: theme.textTheme.headlineMedium?.copyWith(
                               color: AppColors.textOnPrimary,
                               fontWeight: FontWeight.w700,
-                              letterSpacing: -0.5,
+                              letterSpacing: -0.4,
                             ),
                           ),
                           const SizedBox(height: AppSpacing.xs),
-                          Text(
-                            AppStrings.tagline,
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.titleSmall?.copyWith(
-                              color: AppColors.textOnPrimary
-                                  .withValues(alpha: 0.88),
-                              fontWeight: FontWeight.w400,
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.xl,
+                            ),
+                            child: Text(
+                              AppStrings.tagline,
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                color: AppColors.textOnPrimary
+                                    .withValues(alpha: 0.88),
+                                fontWeight: FontWeight.w400,
+                              ),
                             ),
                           ),
                         ],

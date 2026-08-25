@@ -1,10 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../services/firebase/firebase_bootstrap.dart';
 import '../data/menu_repository.dart';
 import '../domain/food_item.dart';
 import '../domain/menu_category.dart';
 
 final menuRepositoryProvider = Provider<MenuRepository>((ref) {
+  if (FirebaseBootstrap.result.isReady) {
+    return FirebaseMenuRepository();
+  }
   return MockMenuRepository();
 });
 

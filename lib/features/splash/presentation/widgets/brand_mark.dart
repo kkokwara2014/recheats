@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_assets.dart';
 
-/// Circular RechEats brand mark used on the splash screen.
+/// RechEats brand mark used on the splash screen.
 class BrandMark extends StatelessWidget {
   const BrandMark({
     super.key,
@@ -16,26 +16,15 @@ class BrandMark extends StatelessWidget {
     return SizedBox(
       width: size,
       height: size,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: AppColors.textOnPrimary.withValues(alpha: 0.12),
-          border: Border.all(
-            color: AppColors.accent.withValues(alpha: 0.85),
-            width: size * 0.035,
-          ),
-        ),
-        child: Center(
-          child: Text(
-            'R',
-            style: TextStyle(
-              color: AppColors.textOnPrimary,
-              fontSize: size * 0.48,
-              fontWeight: FontWeight.w700,
-              height: 1,
-              letterSpacing: -1,
-            ),
-          ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(size * 0.22),
+        child: Image.asset(
+          AppAssets.brandLogo,
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          filterQuality: FilterQuality.high,
+          semanticLabel: 'RechEats',
         ),
       ),
     );

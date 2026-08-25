@@ -45,7 +45,7 @@ abstract final class AppEnv {
 
   static const bool useFirebase = bool.fromEnvironment(
     'USE_FIREBASE',
-    defaultValue: false,
+    defaultValue: true,
   );
 
   static const bool enableAnalytics = bool.fromEnvironment(

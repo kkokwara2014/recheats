@@ -57,6 +57,7 @@ abstract final class AppStrings {
   static const String phoneOptionalHelper =
       'Optional — helps with order updates. No SMS code required.';
   static const String passwordLabel = 'Password';
+  static const String confirmPasswordLabel = 'Confirm password';
 
   static const String onboardingSkip = 'Skip';
   static const String onboardingNext = 'Next';

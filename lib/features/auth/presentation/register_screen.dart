@@ -27,6 +27,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _email = TextEditingController();
   final _phone = TextEditingController();
   final _password = TextEditingController();
+  final _confirmPassword = TextEditingController();
   bool _submitting = false;
 
   @override
@@ -36,6 +37,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     _email.dispose();
     _phone.dispose();
     _password.dispose();
+    _confirmPassword.dispose();
     super.dispose();
   }
 
@@ -127,7 +129,20 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             const SizedBox(height: AppSpacing.md),
             AuthPasswordField(
               controller: _password,
+              label: AppStrings.passwordLabel,
+              textInputAction: TextInputAction.next,
+              autofillHints: const [AutofillHints.newPassword],
               validator: AuthValidators.password,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            AuthPasswordField(
+              controller: _confirmPassword,
+              label: AppStrings.confirmPasswordLabel,
+              autofillHints: const [AutofillHints.newPassword],
+              validator: (value) => AuthValidators.confirmPassword(
+                value,
+                _password.text,
+              ),
               onFieldSubmitted: (_) => _submit(),
             ),
             const SizedBox(height: AppSpacing.lg),

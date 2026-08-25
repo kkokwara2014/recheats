@@ -325,6 +325,14 @@ class FirebaseMenuRepository implements MenuRepository {
       final items = snapshot.docs
           .map((doc) => FoodItem.fromMap(doc.data(), id: doc.id))
           .toList();
+      if (items.isEmpty) {
+        // First run after enabling Firebase — seed the local demo catalog
+        // so Home / checkout keep working instead of showing an empty menu.
+        await _seedDefaultCatalog();
+        return Success(
+          List<FoodItem>.unmodifiable(MockMenuRepository.defaultCatalog),
+        );
+      }
       return Success(items);
     } catch (error, stackTrace) {
       if (kDebugMode) {
@@ -339,6 +347,14 @@ class FirebaseMenuRepository implements MenuRepository {
         stackTrace,
       );
     }
+  }
+
+  Future<void> _seedDefaultCatalog() async {
+    final batch = _db.batch();
+    for (final item in MockMenuRepository.defaultCatalog) {
+      batch.set(_collection.doc(item.id), item.toMap());
+    }
+    await batch.commit();
   }
 
   @override

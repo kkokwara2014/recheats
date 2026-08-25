@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_strings.dart';
 
 /// Shared password field with visibility toggle.
 class AuthPasswordField extends StatefulWidget {
   const AuthPasswordField({
     super.key,
     required this.controller,
-    this.label = 'Password',
+    this.label = AppStrings.passwordLabel,
     this.validator,
     this.textInputAction = TextInputAction.done,
     this.onFieldSubmitted,
+    this.autofillHints = const [AutofillHints.password],
   });
 
   final TextEditingController controller;
@@ -18,6 +20,7 @@ class AuthPasswordField extends StatefulWidget {
   final FormFieldValidator<String>? validator;
   final TextInputAction textInputAction;
   final ValueChanged<String>? onFieldSubmitted;
+  final Iterable<String>? autofillHints;
 
   @override
   State<AuthPasswordField> createState() => _AuthPasswordFieldState();
@@ -34,7 +37,7 @@ class _AuthPasswordFieldState extends State<AuthPasswordField> {
       validator: widget.validator,
       textInputAction: widget.textInputAction,
       onFieldSubmitted: widget.onFieldSubmitted,
-      autofillHints: const [AutofillHints.password],
+      autofillHints: widget.autofillHints,
       decoration: InputDecoration(
         labelText: widget.label,
         suffixIcon: IconButton(

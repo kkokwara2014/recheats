@@ -1,9 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../services/firebase/firebase_bootstrap.dart';
 import '../data/shop_repository.dart';
 import '../domain/shop_fulfillment_settings.dart';
 
 final shopRepositoryProvider = Provider<ShopRepository>((ref) {
+  if (FirebaseBootstrap.result.isReady) {
+    return FirebaseShopRepository();
+  }
   return MockShopRepository();
 });
 

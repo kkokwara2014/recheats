@@ -1,0 +1,25 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "recheats (Firebase)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [
+        "--dart-define=ENV=dev",
+        "--dart-define=USE_FIREBASE=true"
+      ]
+    },
+    {
+      "name": "recheats (Firebase off)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [
+        "--dart-define=ENV=dev",
+        "--dart-define=USE_FIREBASE=false"
+      ]
+    }
+  ]
+}

@@ -30,6 +30,13 @@ abstract final class AuthValidators {
     return null;
   }
 
+  static String? confirmPassword(String? value, String password) {
+    final raw = value ?? '';
+    if (raw.isEmpty) return 'Confirm your password';
+    if (raw != password) return 'Passwords do not match';
+    return null;
+  }
+
   /// Phone is optional for MVP — validate only when the user typed something.
   static String? phoneOptional(String? value) {
     final trimmed = value?.trim() ?? '';

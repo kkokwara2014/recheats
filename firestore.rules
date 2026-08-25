@@ -1,0 +1,51 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // Public menu catalog — kitchen manage writes while signed in.
+    match /menuItems/{itemId} {
+      allow read: if true;
+      allow write: if signedIn();
+    }
+
+    // Shop fulfillment settings — customers read; kitchen updates while signed in.
+    match /shop/{docId} {
+      allow read: if true;
+      allow write: if signedIn();
+    }
+
+    // Customer profiles, favorites, FCM tokens, addresses.
+    match /users/{uid} {
+      allow read, write: if isOwner(uid);
+    }
+
+    // Orders — owner create/read; signed-in kitchen may update status.
+    match /orders/{orderId} {
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid;
+      allow read: if signedIn()
+        && resource.data.userId == request.auth.uid;
+      allow update: if signedIn()
+        && (resource.data.userId == request.auth.uid
+            || request.resource.data.diff(resource.data).affectedKeys()
+                .hasOnly(['status', 'statusUpdatedAt']));
+      allow delete: if false;
+    }
+
+    // Post-order feedback from the customer who placed it.
+    match /order_feedback/{feedbackId} {
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid;
+      allow read: if signedIn()
+        && resource.data.userId == request.auth.uid;
+      allow update, delete: if false;
+    }
+  }
+}

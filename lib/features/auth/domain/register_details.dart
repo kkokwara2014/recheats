@@ -13,6 +13,7 @@ class RegisterDetails {
   final String email;
   final String password;
 
-  /// Optional contact number — collected for orders, not used for OTP auth.
+  /// Contact number (E.164) — required for orders and future promotions.
+  /// Not used for OTP auth in MVP.
   final String? phone;
 }

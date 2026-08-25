@@ -6,6 +6,7 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/errors/error_handler.dart';
 import '../../../core/routing/app_routes.dart';
+import '../../../core/widgets/phone_number_field.dart';
 import '../../onboarding/application/onboarding_providers.dart';
 import '../application/auth_navigation.dart';
 import '../application/auth_providers.dart';
@@ -22,10 +23,10 @@ class RegisterScreen extends ConsumerStatefulWidget {
 
 class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _phoneFieldKey = GlobalKey<PhoneNumberFormFieldState>();
   final _firstName = TextEditingController();
   final _lastName = TextEditingController();
   final _email = TextEditingController();
-  final _phone = TextEditingController();
   final _password = TextEditingController();
   final _confirmPassword = TextEditingController();
   bool _submitting = false;
@@ -35,7 +36,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     _firstName.dispose();
     _lastName.dispose();
     _email.dispose();
-    _phone.dispose();
     _password.dispose();
     _confirmPassword.dispose();
     super.dispose();
@@ -49,13 +49,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
     final onboardingDone =
         await ref.read(onboardingRepositoryProvider).isCompleted();
+    final phone = _phoneFieldKey.currentState?.e164Value;
     final result = await ref.read(authRepositoryProvider).register(
           RegisterDetails(
             firstName: _firstName.text,
             lastName: _lastName.text,
             email: _email.text,
             password: _password.text,
-            phone: _phone.text.trim().isEmpty ? null : _phone.text,
+            phone: phone,
           ),
           onboardingCompleted: onboardingDone,
         );
@@ -115,16 +116,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               ),
             ),
             const SizedBox(height: AppSpacing.md),
-            TextFormField(
-              controller: _phone,
-              keyboardType: TextInputType.phone,
+            PhoneNumberFormField(
+              key: _phoneFieldKey,
+              labelText: AppStrings.phoneLabel,
+              helperText: AppStrings.phoneOptionalHelper,
               textInputAction: TextInputAction.next,
-              autofillHints: const [AutofillHints.telephoneNumber],
-              validator: AuthValidators.phoneOptional,
-              decoration: const InputDecoration(
-                labelText: AppStrings.phoneOptionalLabel,
-                helperText: AppStrings.phoneOptionalHelper,
-              ),
+              optional: false,
             ),
             const SizedBox(height: AppSpacing.md),
             AuthPasswordField(

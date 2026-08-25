@@ -263,6 +263,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           checkout: checkout,
           cart: cart,
           savedAddresses: profileAsync.asData?.value?.addresses ?? const [],
+          canSaveAddresses: profileAsync.asData?.value != null,
           placing: _placing,
           onPlaceOrder: _placeOrder,
           onSelectMethod: (method) =>
@@ -282,6 +283,7 @@ class _CheckoutBody extends StatelessWidget {
     required this.checkout,
     required this.cart,
     required this.savedAddresses,
+    required this.canSaveAddresses,
     required this.placing,
     required this.onPlaceOrder,
     required this.onSelectMethod,
@@ -294,6 +296,7 @@ class _CheckoutBody extends StatelessWidget {
   final CheckoutState checkout;
   final CartState cart;
   final List<SavedAddress> savedAddresses;
+  final bool canSaveAddresses;
   final bool placing;
   final VoidCallback onPlaceOrder;
   final ValueChanged<FulfillmentMethod> onSelectMethod;
@@ -324,6 +327,7 @@ class _CheckoutBody extends StatelessWidget {
                   DeliveryDetailsForm(
                     details: checkout.delivery,
                     savedAddresses: savedAddresses,
+                    canSaveAddresses: canSaveAddresses,
                   ),
                 if (checkout.isPickup || checkout.isDelivery)
                   const SizedBox(height: AppSpacing.lg),

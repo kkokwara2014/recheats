@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/errors/error_handler.dart';
+import '../../../core/widgets/admin_gate.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_loading.dart';
 import '../../../core/widgets/responsive_layout.dart';
@@ -102,6 +103,13 @@ class _FulfillmentSettingsScreenState
 
   @override
   Widget build(BuildContext context) {
+    return AdminGate(
+      title: AppStrings.fulfillmentSettingsTitle,
+      child: _buildBody(context),
+    );
+  }
+
+  Widget _buildBody(BuildContext context) {
     final settingsAsync = ref.watch(shopFulfillmentSettingsProvider);
 
     return Scaffold(

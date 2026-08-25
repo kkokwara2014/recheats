@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/errors/error_handler.dart';
+import '../../../core/widgets/address_sign_in_prompt.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_loading.dart';
 import '../../../core/widgets/responsive_layout.dart';
@@ -124,10 +125,7 @@ class _AddressFormScreenState extends ConsumerState<AddressFormScreen> {
         ),
         data: (profile) {
           if (profile == null) {
-            return const AppErrorView(
-              title: AppStrings.profileGuestTitle,
-              message: AppStrings.profileGuestBody,
-            );
+            return const AddressSignInPrompt();
           }
 
           return ResponsiveLayout(

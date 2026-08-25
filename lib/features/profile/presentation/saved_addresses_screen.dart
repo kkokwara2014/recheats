@@ -6,6 +6,7 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/errors/error_handler.dart';
 import '../../../core/routing/app_routes.dart';
+import '../../../core/widgets/address_sign_in_prompt.dart';
 import '../../../core/widgets/app_empty_state.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_loading.dart';
@@ -20,14 +21,17 @@ class SavedAddressesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profileAsync = ref.watch(customerProfileProvider);
+    final isSignedIn = profileAsync.asData?.value != null;
 
     return Scaffold(
       appBar: AppBar(title: const Text(AppStrings.savedAddresses)),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push(AppRoutes.profileAddressEdit),
-        icon: const Icon(Icons.add),
-        label: const Text(AppStrings.addAddress),
-      ),
+      floatingActionButton: isSignedIn
+          ? FloatingActionButton.extended(
+              onPressed: () => context.push(AppRoutes.profileAddressEdit),
+              icon: const Icon(Icons.add),
+              label: const Text(AppStrings.addAddress),
+            )
+          : null,
       body: profileAsync.when(
         loading: () => const AppLoading(),
         error: (error, _) => AppErrorView(
@@ -36,10 +40,7 @@ class SavedAddressesScreen extends ConsumerWidget {
         ),
         data: (profile) {
           if (profile == null) {
-            return const AppErrorView(
-              title: AppStrings.profileGuestTitle,
-              message: AppStrings.profileGuestBody,
-            );
+            return const AddressSignInPrompt();
           }
 
           final addresses = profile.addresses;

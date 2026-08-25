@@ -63,7 +63,7 @@ class HomeGreetingHeader extends ConsumerWidget {
         ),
         IconButton(
           tooltip: AppStrings.openProfile,
-          onPressed: () => context.push(AppRoutes.profile),
+          onPressed: () => context.go(AppRoutes.profile),
           icon: const Icon(Icons.person_outline),
         ),
       ],

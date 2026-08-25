@@ -376,6 +376,8 @@ class FirebaseProfileRepository implements ProfileRepository {
     final phone = (data['phone'] as String?)?.trim();
     final photoUrl =
         (data['photoUrl'] as String?)?.trim() ?? user.photoURL;
+    final role = (data['role'] as String?)?.trim().toLowerCase();
+    final isAdmin = data['isAdmin'] == true || role == 'admin';
 
     return CustomerProfile(
       uid: user.uid,
@@ -396,6 +398,7 @@ class FirebaseProfileRepository implements ProfileRepository {
                 ? Map<String, dynamic>.from(data['notifications'] as Map)
                 : null,
       ),
+      isAdmin: isAdmin,
     );
   }
 

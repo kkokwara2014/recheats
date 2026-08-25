@@ -17,7 +17,7 @@ import '../../profile/application/profile_providers.dart';
 import '../application/favorites_providers.dart';
 import 'widgets/favorite_button.dart';
 
-/// Profile → My Favorites: saved Nigerian dishes for quick reordering.
+/// Favourites tab: saved Nigerian dishes for quick reordering.
 class FavoritesScreen extends ConsumerWidget {
   const FavoritesScreen({super.key});
 

@@ -19,7 +19,7 @@ import '../application/order_providers.dart';
 import '../domain/order_timeline.dart';
 import '../domain/placed_order.dart';
 
-/// Profile → Order history: current and previous orders with Order Again.
+/// Order history tab: current and previous orders with Order Again.
 class OrderHistoryScreen extends ConsumerWidget {
   const OrderHistoryScreen({super.key});
 

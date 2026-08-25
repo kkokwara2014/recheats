@@ -5,6 +5,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/routing/app_routes.dart';
+import '../../splash/presentation/widgets/brand_mark.dart';
 
 /// Entry point when the user is not signed in.
 class WelcomeScreen extends StatelessWidget {
@@ -21,13 +22,18 @@ class WelcomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Spacer(),
+              const Spacer(flex: 2),
+              const Center(
+                child: BrandMark(size: 148),
+              ),
+              const SizedBox(height: AppSpacing.lg),
               Text(
                 AppStrings.appName,
                 textAlign: TextAlign.center,
                 style: theme.textTheme.headlineLarge?.copyWith(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w700,
+                  letterSpacing: -0.4,
                 ),
               ),
               const SizedBox(height: AppSpacing.sm),
@@ -46,7 +52,7 @@ class WelcomeScreen extends StatelessWidget {
                   color: AppColors.textSecondary,
                 ),
               ),
-              const Spacer(),
+              const Spacer(flex: 3),
               FilledButton(
                 onPressed: () => context.push(AppRoutes.login),
                 child: const Text(AppStrings.signIn),

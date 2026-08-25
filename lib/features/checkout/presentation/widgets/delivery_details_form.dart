@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/routing/app_routes.dart';
+import '../../../../core/widgets/address_sign_in_prompt.dart';
 import '../../application/checkout_providers.dart';
 import '../../domain/delivery_details.dart';
 import '../../../profile/domain/saved_address.dart';
@@ -15,10 +16,14 @@ class DeliveryDetailsForm extends ConsumerStatefulWidget {
     super.key,
     required this.details,
     required this.savedAddresses,
+    this.canSaveAddresses = false,
   });
 
   final DeliveryDetails details;
   final List<SavedAddress> savedAddresses;
+
+  /// When true, show “Add address” to save into the signed-in profile.
+  final bool canSaveAddresses;
 
   @override
   ConsumerState<DeliveryDetailsForm> createState() =>
@@ -128,9 +133,16 @@ class _DeliveryDetailsFormState extends ConsumerState<DeliveryDetailsForm> {
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-        ] else ...[
+        ] else if (widget.canSaveAddresses) ...[
           OutlinedButton.icon(
             onPressed: () => context.push(AppRoutes.profileAddressEdit),
+            icon: const Icon(Icons.add_location_alt_outlined),
+            label: const Text(AppStrings.addAddress),
+          ),
+          const SizedBox(height: AppSpacing.md),
+        ] else ...[
+          TextButton.icon(
+            onPressed: () => promptSignInToSaveAddress(context),
             icon: const Icon(Icons.add_location_alt_outlined),
             label: const Text(AppStrings.addAddress),
           ),

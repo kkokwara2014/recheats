@@ -30,6 +30,7 @@ import '../../features/profile/presentation/saved_addresses_screen.dart';
 import '../../features/shop/presentation/fulfillment_settings_screen.dart';
 import '../../features/splash/presentation/splash_screen.dart';
 import 'app_routes.dart';
+import 'main_shell.dart';
 
 /// App-wide [GoRouter] configuration.
 abstract final class AppRouter {
@@ -43,8 +44,10 @@ abstract final class AppRouter {
     GlobalKey<NavigatorState>? navigatorKey,
     String initialLocation = AppRoutes.splash,
   }) {
+    final rootKey = navigatorKey ?? rootNavigatorKey;
+
     return GoRouter(
-      navigatorKey: navigatorKey ?? rootNavigatorKey,
+      navigatorKey: rootKey,
       initialLocation: initialLocation,
       routes: [
         GoRoute(
@@ -60,16 +63,19 @@ abstract final class AppRouter {
         GoRoute(
           path: AppRoutes.login,
           name: 'login',
+          parentNavigatorKey: rootKey,
           builder: (context, state) => const LoginScreen(),
         ),
         GoRoute(
           path: AppRoutes.register,
           name: 'register',
+          parentNavigatorKey: rootKey,
           builder: (context, state) => const RegisterScreen(),
         ),
         GoRoute(
           path: AppRoutes.forgotPassword,
           name: 'forgot-password',
+          parentNavigatorKey: rootKey,
           builder: (context, state) => const ForgotPasswordScreen(),
         ),
         GoRoute(
@@ -82,24 +88,69 @@ abstract final class AppRouter {
           name: 'account-inactive',
           builder: (context, state) => const AccountInactiveScreen(),
         ),
-        GoRoute(
-          path: AppRoutes.home,
-          name: 'home',
-          builder: (context, state) => const HomeScreen(),
+
+        /// Primary customer tabs: Home · History · Favourites · Profile.
+        StatefulShellRoute.indexedStack(
+          builder: (context, state, navigationShell) {
+            return MainShell(navigationShell: navigationShell);
+          },
+          branches: [
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: AppRoutes.home,
+                  name: 'home',
+                  builder: (context, state) => const HomeScreen(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: AppRoutes.history,
+                  name: 'history',
+                  builder: (context, state) => const OrderHistoryScreen(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: AppRoutes.favorites,
+                  name: 'favorites',
+                  builder: (context, state) => const FavoritesScreen(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: AppRoutes.profile,
+                  name: 'profile',
+                  builder: (context, state) => const ProfileScreen(),
+                ),
+              ],
+            ),
+          ],
         ),
+
+        // Full-screen flows (cover the bottom nav).
         GoRoute(
           path: AppRoutes.cart,
           name: 'cart',
+          parentNavigatorKey: rootKey,
           builder: (context, state) => const CartScreen(),
         ),
         GoRoute(
           path: AppRoutes.checkout,
           name: 'checkout',
+          parentNavigatorKey: rootKey,
           builder: (context, state) => const CheckoutScreen(),
         ),
         GoRoute(
           path: AppRoutes.orderConfirmation,
           name: 'order-confirmation',
+          parentNavigatorKey: rootKey,
           builder: (context, state) {
             final order = state.extra is PlacedOrder
                 ? state.extra as PlacedOrder
@@ -113,6 +164,7 @@ abstract final class AppRouter {
         GoRoute(
           path: AppRoutes.orderTrack,
           name: 'order-track',
+          parentNavigatorKey: rootKey,
           builder: (context, state) {
             final order = state.extra is PlacedOrder
                 ? state.extra as PlacedOrder
@@ -126,6 +178,7 @@ abstract final class AppRouter {
         GoRoute(
           path: AppRoutes.menuItem,
           name: 'menu-item',
+          parentNavigatorKey: rootKey,
           builder: (context, state) {
             final id = state.pathParameters['id'] ?? '';
             final editingLine = state.extra is CartLineItem
@@ -140,31 +193,31 @@ abstract final class AppRouter {
         GoRoute(
           path: AppRoutes.menuManage,
           name: 'menu-manage',
+          parentNavigatorKey: rootKey,
           builder: (context, state) => const ManageMenuScreen(),
         ),
         GoRoute(
           path: AppRoutes.fulfillmentSettings,
           name: 'fulfillment-settings',
+          parentNavigatorKey: rootKey,
           builder: (context, state) => const FulfillmentSettingsScreen(),
-        ),
-        GoRoute(
-          path: AppRoutes.profile,
-          name: 'profile',
-          builder: (context, state) => const ProfileScreen(),
         ),
         GoRoute(
           path: AppRoutes.profileEdit,
           name: 'profile-edit',
+          parentNavigatorKey: rootKey,
           builder: (context, state) => const EditProfileScreen(),
         ),
         GoRoute(
           path: AppRoutes.profileAddresses,
           name: 'profile-addresses',
+          parentNavigatorKey: rootKey,
           builder: (context, state) => const SavedAddressesScreen(),
         ),
         GoRoute(
           path: AppRoutes.profileAddressEdit,
           name: 'profile-address-edit',
+          parentNavigatorKey: rootKey,
           builder: (context, state) {
             final existing = state.extra is SavedAddress
                 ? state.extra as SavedAddress
@@ -172,45 +225,51 @@ abstract final class AppRouter {
             return AddressFormScreen(existing: existing);
           },
         ),
+        // Legacy aliases → primary tabs.
         GoRoute(
           path: AppRoutes.profileOrders,
           name: 'profile-orders',
-          builder: (context, state) => const OrderHistoryScreen(),
+          redirect: (context, state) => AppRoutes.history,
         ),
         GoRoute(
           path: AppRoutes.profileFavorites,
           name: 'profile-favorites',
-          builder: (context, state) => const FavoritesScreen(),
+          redirect: (context, state) => AppRoutes.favorites,
         ),
         GoRoute(
           path: AppRoutes.profileNotifications,
           name: 'profile-notifications',
+          parentNavigatorKey: rootKey,
           builder: (context, state) => const NotificationsScreen(),
         ),
         GoRoute(
           path: AppRoutes.profileSupport,
           name: 'profile-support',
+          parentNavigatorKey: rootKey,
           builder: (context, state) => const CustomerSupportScreen(),
         ),
         GoRoute(
           path: AppRoutes.profileSupportReport,
           name: 'profile-support-report',
+          parentNavigatorKey: rootKey,
           builder: (context, state) => const ReportOrderProblemScreen(),
         ),
-        // Legacy Help path — same screen as Customer Support.
         GoRoute(
           path: AppRoutes.profileHelp,
           name: 'profile-help',
+          parentNavigatorKey: rootKey,
           builder: (context, state) => const CustomerSupportScreen(),
         ),
         GoRoute(
           path: AppRoutes.foundation,
           name: 'foundation',
+          parentNavigatorKey: rootKey,
           builder: (context, state) => const FoundationHomeScreen(),
         ),
         GoRoute(
           path: AppRoutes.demoLoading,
           name: 'demo-loading',
+          parentNavigatorKey: rootKey,
           builder: (context, state) => const DemoStatesScreen(
             kind: DemoStateKind.loading,
           ),
@@ -218,6 +277,7 @@ abstract final class AppRouter {
         GoRoute(
           path: AppRoutes.demoEmpty,
           name: 'demo-empty',
+          parentNavigatorKey: rootKey,
           builder: (context, state) => const DemoStatesScreen(
             kind: DemoStateKind.empty,
           ),
@@ -225,6 +285,7 @@ abstract final class AppRouter {
         GoRoute(
           path: AppRoutes.demoError,
           name: 'demo-error',
+          parentNavigatorKey: rootKey,
           builder: (context, state) => const DemoStatesScreen(
             kind: DemoStateKind.error,
           ),

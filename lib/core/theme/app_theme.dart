@@ -74,10 +74,15 @@ abstract final class AppTheme {
         centerTitle: false,
         backgroundColor: isLight ? AppColors.surface : const Color(0xFF121A16),
         foregroundColor: colorScheme.onSurface,
-        titleTextStyle: textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.w600,
+        // Larger, bolder titles for easier reading (incl. older eyes).
+        titleTextStyle: textTheme.headlineSmall?.copyWith(
+          fontSize: 24,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.15,
+          height: 1.25,
           color: colorScheme.onSurface,
         ),
+        toolbarHeight: 64,
       ),
       cardTheme: CardThemeData(
         elevation: 0,

@@ -8,6 +8,7 @@ import '../../../core/errors/error_handler.dart';
 import '../../../core/utils/result.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_loading.dart';
+import '../../../core/widgets/phone_number_field.dart';
 import '../../../core/widgets/responsive_layout.dart';
 import '../../auth/domain/auth_validators.dart';
 import '../application/profile_providers.dart';
@@ -24,20 +25,20 @@ class EditProfileScreen extends ConsumerStatefulWidget {
 
 class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _phoneFieldKey = GlobalKey<PhoneNumberFormFieldState>();
   final _firstName = TextEditingController();
   final _lastName = TextEditingController();
   final _email = TextEditingController();
-  final _phone = TextEditingController();
   bool _hydrated = false;
   bool _saving = false;
   bool _photoBusy = false;
+  String? _initialPhone;
 
   @override
   void dispose() {
     _firstName.dispose();
     _lastName.dispose();
     _email.dispose();
-    _phone.dispose();
     super.dispose();
   }
 
@@ -46,7 +47,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     _firstName.text = profile.firstName;
     _lastName.text = profile.lastName;
     _email.text = profile.email;
-    _phone.text = profile.phone ?? '';
+    _initialPhone = profile.phone;
     _hydrated = true;
   }
 
@@ -55,11 +56,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     setState(() => _saving = true);
+    final phone = _phoneFieldKey.currentState?.e164Value;
     final result = await ref.read(profileRepositoryProvider).updateDetails(
           firstName: _firstName.text,
           lastName: _lastName.text,
           email: _email.text,
-          phone: _phone.text.trim().isEmpty ? null : _phone.text,
+          phone: phone,
         );
     if (!mounted) return;
 
@@ -237,16 +239,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       ),
                     ),
                     const SizedBox(height: AppSpacing.md),
-                    TextFormField(
-                      controller: _phone,
-                      keyboardType: TextInputType.phone,
+                    PhoneNumberFormField(
+                      key: _phoneFieldKey,
+                      initialPhone: _initialPhone,
+                      labelText: AppStrings.phoneLabel,
                       textInputAction: TextInputAction.done,
-                      autofillHints: const [AutofillHints.telephoneNumber],
-                      validator: AuthValidators.phoneOptional,
+                      optional: false,
                       onFieldSubmitted: (_) => _save(),
-                      decoration: const InputDecoration(
-                        labelText: AppStrings.phoneLabel,
-                      ),
                     ),
                     const SizedBox(height: AppSpacing.xl),
                     FilledButton(

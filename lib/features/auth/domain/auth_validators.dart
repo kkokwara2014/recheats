@@ -37,12 +37,20 @@ abstract final class AuthValidators {
     return null;
   }
 
-  /// Phone is optional for MVP — validate only when the user typed something.
+  /// Required phone — accepts national digits or E.164.
+  /// Prefer [PhoneNumberFormField] for country-aware length checks in the UI.
+  static String? phoneRequired(String? value) {
+    final trimmed = value?.trim() ?? '';
+    if (trimmed.isEmpty) return 'Enter your phone number';
+    final digits = trimmed.replaceAll(RegExp(r'\D'), '');
+    if (digits.length < 10) return 'Enter a valid phone number';
+    return null;
+  }
+
+  /// Kept for older call sites; empty is allowed.
   static String? phoneOptional(String? value) {
     final trimmed = value?.trim() ?? '';
     if (trimmed.isEmpty) return null;
-    final digits = trimmed.replaceAll(RegExp(r'[^\d+]'), '');
-    if (digits.length < 10) return 'Enter a valid phone number';
-    return null;
+    return phoneRequired(value);
   }
 }

@@ -8,6 +8,8 @@ abstract final class AppRoutes {
   static const String onboarding = '/onboarding';
   static const String accountInactive = '/account-inactive';
   static const String home = '/home';
+  static const String history = '/history';
+  static const String favorites = '/favorites';
 
   static const String cart = '/cart';
   static const String checkout = '/checkout';
@@ -24,7 +26,9 @@ abstract final class AppRoutes {
   static const String profileEdit = '/profile/edit';
   static const String profileAddresses = '/profile/addresses';
   static const String profileAddressEdit = '/profile/addresses/edit';
+  /// Legacy path — redirects to [history].
   static const String profileOrders = '/profile/orders';
+  /// Legacy path — redirects to [favorites].
   static const String profileFavorites = '/profile/favorites';
   static const String profileNotifications = '/profile/notifications';
   static const String profileHelp = '/profile/help';

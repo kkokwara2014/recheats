@@ -9,33 +9,61 @@ service cloud.firestore {
       return signedIn() && request.auth.uid == uid;
     }
 
-    // Public menu catalog — kitchen manage writes while signed in.
-    match /menuItems/{itemId} {
-      allow read: if true;
-      allow write: if signedIn();
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
 
-    // Shop fulfillment settings — customers read; kitchen updates while signed in.
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && (userDoc().get('isAdmin', false) == true
+            || userDoc().get('role', '') == 'admin');
+    }
+
+    // Clients must not grant themselves admin (set only via Console / trusted tooling).
+    function preservesAdminFields() {
+      return (!('isAdmin' in request.resource.data)
+              || request.resource.data.isAdmin == resource.data.get('isAdmin', false))
+        && (!('role' in request.resource.data)
+            || request.resource.data.role == resource.data.get('role', null));
+    }
+
+    function createWithoutAdmin() {
+      return request.resource.data.get('isAdmin', false) != true
+        && request.resource.data.get('role', '') != 'admin';
+    }
+
+    // Public menu catalog — only admins may change availability / content.
+    match /menuItems/{itemId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Shop fulfillment settings — customers read; admins update.
     match /shop/{docId} {
       allow read: if true;
-      allow write: if signedIn();
+      allow write: if isAdmin();
     }
 
     // Customer profiles, favorites, FCM tokens, addresses.
     match /users/{uid} {
-      allow read, write: if isOwner(uid);
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid) && createWithoutAdmin();
+      allow update: if isOwner(uid) && preservesAdminFields();
+      allow delete: if isOwner(uid);
     }
 
-    // Orders — owner create/read; signed-in kitchen may update status.
+    // Orders — owner create/read; admins may update kitchen status fields.
     match /orders/{orderId} {
       allow create: if signedIn()
         && request.resource.data.userId == request.auth.uid;
       allow read: if signedIn()
-        && resource.data.userId == request.auth.uid;
+        && (resource.data.userId == request.auth.uid || isAdmin());
       allow update: if signedIn()
         && (resource.data.userId == request.auth.uid
-            || request.resource.data.diff(resource.data).affectedKeys()
-                .hasOnly(['status', 'statusUpdatedAt']));
+            || (isAdmin()
+                && request.resource.data.diff(resource.data).affectedKeys()
+                    .hasOnly(['status', 'statusUpdatedAt'])));
       allow delete: if false;
     }
 

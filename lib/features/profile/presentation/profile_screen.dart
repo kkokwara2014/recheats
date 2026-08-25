@@ -27,6 +27,28 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   Future<void> _logout() async {
     if (_loggingOut) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text(AppStrings.logoutConfirmTitle),
+          content: const Text(AppStrings.logoutConfirmBody),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text(AppStrings.logoutCancelAction),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text(AppStrings.logoutConfirmAction),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirmed != true || !mounted) return;
+
     setState(() => _loggingOut = true);
 
     final result = await ref.read(authRepositoryProvider).logout();
@@ -141,23 +163,25 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       : '${profile.addresses.length} saved',
                   onTap: () => context.push(AppRoutes.profileAddresses),
                 ),
-                ProfileMenuTile(
-                  icon: Icons.restaurant_menu_outlined,
-                  title: AppStrings.manageMenu,
-                  subtitle: AppStrings.manageMenuSubtitle,
-                  onTap: () => context.push(AppRoutes.menuManage),
-                ),
-                ProfileMenuTile(
-                  icon: Icons.local_shipping_outlined,
-                  title: AppStrings.fulfillmentSettings,
-                  subtitle: AppStrings.fulfillmentSettingsMenuSubtitle,
-                  onTap: () => context.push(AppRoutes.fulfillmentSettings),
-                ),
+                if (profile.isAdmin) ...[
+                  ProfileMenuTile(
+                    icon: Icons.restaurant_menu_outlined,
+                    title: AppStrings.manageMenu,
+                    subtitle: AppStrings.manageMenuSubtitle,
+                    onTap: () => context.push(AppRoutes.menuManage),
+                  ),
+                  ProfileMenuTile(
+                    icon: Icons.local_shipping_outlined,
+                    title: AppStrings.fulfillmentSettings,
+                    subtitle: AppStrings.fulfillmentSettingsMenuSubtitle,
+                    onTap: () => context.push(AppRoutes.fulfillmentSettings),
+                  ),
+                ],
                 const Divider(height: AppSpacing.lg),
                 ProfileMenuTile(
                   icon: Icons.receipt_long_outlined,
                   title: AppStrings.orderHistory,
-                  onTap: () => context.push(AppRoutes.profileOrders),
+                  onTap: () => context.go(AppRoutes.history),
                 ),
                 ProfileMenuTile(
                   icon: Icons.favorite_outline,
@@ -165,7 +189,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   subtitle: favoriteCount == 0
                       ? AppStrings.favoritesEmptyTitle
                       : AppStrings.favoritesCount(favoriteCount),
-                  onTap: () => context.push(AppRoutes.profileFavorites),
+                  onTap: () => context.go(AppRoutes.favorites),
                 ),
                 ProfileMenuTile(
                   icon: Icons.notifications_outlined,

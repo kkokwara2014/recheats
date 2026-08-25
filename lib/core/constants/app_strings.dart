@@ -32,6 +32,11 @@ abstract final class AppStrings {
   static const String signIn = 'Sign in';
   static const String createAccount = 'Create account';
   static const String logout = 'Log out';
+  static const String logoutConfirmTitle = 'Log out?';
+  static const String logoutConfirmBody =
+      'You will need to sign in again to place orders and view your account.';
+  static const String logoutConfirmAction = 'Log out';
+  static const String logoutCancelAction = 'Cancel';
   static const String forgotPassword = 'Forgot password?';
   static const String sendResetLink = 'Send reset link';
   static const String backToSignIn = 'Back to sign in';
@@ -53,9 +58,9 @@ abstract final class AppStrings {
   static const String firstNameLabel = 'First name';
   static const String lastNameLabel = 'Last name';
   static const String emailLabel = 'Email';
-  static const String phoneOptionalLabel = 'Phone number (optional)';
+  static const String phoneOptionalLabel = 'Phone number';
   static const String phoneOptionalHelper =
-      'Optional — helps with order updates. No SMS code required.';
+      'Required for order updates and future promotions. No SMS code required.';
   static const String passwordLabel = 'Password';
   static const String confirmPasswordLabel = 'Confirm password';
 
@@ -86,6 +91,11 @@ abstract final class AppStrings {
   static String homeGreeting(String firstName) => 'Hello, $firstName';
   static const String homeHeroTitle = 'Authentic Nigerian Food';
   static const String homeHeroSubtitle = 'Made Fresh for You';
+
+  static const String navHome = 'Home';
+  static const String navHistory = 'History';
+  static const String navFavorites = 'Favourites';
+  static const String navProfile = 'Profile';
   static const String browseMenu = 'Browse Menu';
   static const String categoriesTitle = 'Categories';
   static const String categoryAll = 'All';
@@ -262,6 +272,9 @@ abstract final class AppStrings {
   static const String manageMenuSubtitle =
       'Mark dishes available or sold out without deleting them';
   static const String manageMenuTitle = 'Kitchen menu';
+  static const String adminAccessDeniedTitle = 'Admin only';
+  static const String adminAccessDeniedBody =
+      'Menu and kitchen settings are available to RechEats admins only.';
   static const String availableLabel = 'Available';
   static const String unavailableLabel = 'Unavailable';
   static const String availabilityUpdated = 'Availability updated';
@@ -290,6 +303,9 @@ abstract final class AppStrings {
   static const String savedAddressesEmptyTitle = 'No saved addresses';
   static const String savedAddressesEmptyBody =
       'Add a home or work address so delivery checkout is faster.';
+  static const String addressSignInRequiredTitle = 'Sign in to save addresses';
+  static const String addressSignInRequiredBody =
+      'Create an account or sign in to save delivery addresses for faster checkout.';
   static const String addAddress = 'Add address';
   static const String editAddress = 'Edit address';
   static const String saveAddress = 'Save address';

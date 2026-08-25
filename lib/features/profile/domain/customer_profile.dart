@@ -12,6 +12,7 @@ class CustomerProfile {
     this.photoUrl,
     this.addresses = const [],
     this.notifications = const NotificationPrefs(),
+    this.isAdmin = false,
   });
 
   final String uid;
@@ -22,6 +23,9 @@ class CustomerProfile {
   final String? photoUrl;
   final List<SavedAddress> addresses;
   final NotificationPrefs notifications;
+
+  /// Kitchen / admin tooling (manage menu, fulfillment). Set in Firestore.
+  final bool isAdmin;
 
   String get displayName {
     final name = '$firstName $lastName'.trim();
@@ -49,6 +53,7 @@ class CustomerProfile {
     bool clearPhotoUrl = false,
     List<SavedAddress>? addresses,
     NotificationPrefs? notifications,
+    bool? isAdmin,
   }) {
     return CustomerProfile(
       uid: uid,
@@ -59,6 +64,7 @@ class CustomerProfile {
       photoUrl: clearPhotoUrl ? null : (photoUrl ?? this.photoUrl),
       addresses: addresses ?? this.addresses,
       notifications: notifications ?? this.notifications,
+      isAdmin: isAdmin ?? this.isAdmin,
     );
   }
 }

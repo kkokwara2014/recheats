@@ -33,6 +33,7 @@ import 'package:recheats/features/payment/domain/collect_payment_request.dart';
 import 'package:recheats/features/payment/domain/payment_result.dart';
 import 'package:recheats/features/profile/application/profile_providers.dart';
 import 'package:recheats/features/profile/data/profile_repository.dart';
+import 'package:recheats/features/profile/domain/customer_profile.dart';
 import 'package:recheats/features/profile/domain/notification_prefs.dart';
 import 'package:recheats/features/profile/domain/saved_address.dart';
 import 'package:recheats/features/shop/application/shop_providers.dart';
@@ -207,8 +208,10 @@ void main() {
     expect(AuthValidators.email('guest@recheats.app'), isNull);
     expect(AuthValidators.password('123'), isNotNull);
     expect(AuthValidators.password('secret1'), isNull);
+    expect(AuthValidators.phoneRequired(''), isNotNull);
+    expect(AuthValidators.phoneRequired('301555'), isNotNull);
+    expect(AuthValidators.phoneRequired('3015551234'), isNull);
     expect(AuthValidators.phoneOptional(''), isNull);
-    expect(AuthValidators.phoneOptional('301555'), isNotNull);
     expect(AuthValidators.phoneOptional('3015551234'), isNull);
   });
 
@@ -320,11 +323,21 @@ void main() {
 
   testWidgets('manage menu can mark a dish unavailable', (tester) async {
     final menu = FakeMenuRepository();
+    final profiles = FakeProfileRepository(
+      seed: const CustomerProfile(
+        uid: 'admin-user',
+        firstName: 'Kitchen',
+        lastName: 'Admin',
+        email: 'admin@recheats.app',
+        isAdmin: true,
+      ),
+    );
 
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           menuRepositoryProvider.overrideWith((ref) => menu),
+          profileRepositoryProvider.overrideWith((ref) => profiles),
         ],
         child: RecheatsApp(
           router: AppRouter.create(
@@ -400,7 +413,7 @@ void main() {
     expect(find.text(AppStrings.homeTitle), findsOneWidget);
     expect(find.text(AppStrings.browseMenu), findsOneWidget);
     expect(find.text(AppStrings.todaysSpecials), findsOneWidget);
-    expect(find.byTooltip(AppStrings.openProfile), findsOneWidget);
+    expect(find.byTooltip(AppStrings.openProfile), findsWidgets);
 
     final homeScroll = find.byType(CustomScrollView);
     await tester.scrollUntilVisible(
@@ -716,11 +729,21 @@ void main() {
 
   testWidgets('fulfillment settings can disable delivery', (tester) async {
     final shop = FakeShopRepository();
+    final profiles = FakeProfileRepository(
+      seed: const CustomerProfile(
+        uid: 'admin-user',
+        firstName: 'Kitchen',
+        lastName: 'Admin',
+        email: 'admin@recheats.app',
+        isAdmin: true,
+      ),
+    );
 
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           shopRepositoryProvider.overrideWith((ref) => shop),
+          profileRepositoryProvider.overrideWith((ref) => profiles),
         ],
         child: RecheatsApp(
           router: AppRouter.create(
@@ -873,28 +896,38 @@ void main() {
     expect(find.text('Rechael Guest'), findsOneWidget);
     expect(find.text(AppStrings.editProfile), findsOneWidget);
     expect(find.text(AppStrings.savedAddresses), findsOneWidget);
-    expect(find.text(AppStrings.manageMenu), findsOneWidget);
-    expect(find.text(AppStrings.fulfillmentSettings), findsOneWidget);
+    expect(find.text(AppStrings.manageMenu), findsNothing);
+    expect(find.text(AppStrings.fulfillmentSettings), findsNothing);
 
     final listScroll = find.descendant(
       of: find.byType(ListView),
       matching: find.byType(Scrollable),
     ).first;
     await tester.scrollUntilVisible(
-      find.text(AppStrings.help),
+      find.text(AppStrings.customerSupport),
       120,
       scrollable: listScroll,
     );
-    expect(find.text(AppStrings.orderHistory), findsOneWidget);
-    expect(find.text(AppStrings.favorites), findsOneWidget);
+    expect(find.text(AppStrings.orderHistory), findsWidgets);
+    expect(find.text(AppStrings.favorites), findsWidgets);
     expect(find.text(AppStrings.notifications), findsOneWidget);
-    expect(find.text(AppStrings.help), findsOneWidget);
+    expect(find.text(AppStrings.customerSupport), findsOneWidget);
+    expect(find.text(AppStrings.navHome), findsWidgets);
+    expect(find.text(AppStrings.navHistory), findsWidgets);
+    expect(find.text(AppStrings.navFavorites), findsWidgets);
+    expect(find.text(AppStrings.navProfile), findsWidgets);
 
     final logout = find.text(AppStrings.logout);
     await tester.scrollUntilVisible(logout, 120, scrollable: listScroll);
     await tester.ensureVisible(logout);
     await tester.pumpAndSettle();
     await tester.tap(logout);
+    await tester.pumpAndSettle();
+
+    expect(find.text(AppStrings.logoutConfirmTitle), findsOneWidget);
+    await tester.tap(
+      find.widgetWithText(FilledButton, AppStrings.logoutConfirmAction),
+    );
     await tester.pumpAndSettle();
 
     expect(auth.signedIn, isFalse);

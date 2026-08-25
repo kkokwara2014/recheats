@@ -5,6 +5,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/errors/error_handler.dart';
+import '../../../core/widgets/admin_gate.dart';
 import '../../../core/widgets/app_empty_state.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_loading.dart';
@@ -55,6 +56,25 @@ class ManageMenuScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    return AdminGate(
+      title: AppStrings.manageMenuTitle,
+      child: _ManageMenuContent(onToggle: _toggle),
+    );
+  }
+}
+
+class _ManageMenuContent extends ConsumerWidget {
+  const _ManageMenuContent({required this.onToggle});
+
+  final Future<void> Function(
+    BuildContext context,
+    WidgetRef ref,
+    FoodItem item,
+    bool isAvailable,
+  ) onToggle;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     final menuAsync = ref.watch(menuItemsProvider);
 
     return Scaffold(
@@ -82,7 +102,7 @@ class ManageMenuScreen extends ConsumerWidget {
                 final item = items[index];
                 return _ManageMenuTile(
                   item: item,
-                  onChanged: (value) => _toggle(context, ref, item, value),
+                  onChanged: (value) => onToggle(context, ref, item, value),
                 );
               },
             ),
